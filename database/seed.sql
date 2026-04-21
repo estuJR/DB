@@ -89,11 +89,11 @@ INSERT INTO clientes (nombre, apellido, email, telefono) VALUES
 
 -- EMPLEADOS
 INSERT INTO empleados (nombre, apellido, cargo, email, password_hash) VALUES
-('Elena', 'Castillo','Gerente',   'ecastillo@tienda.gt','$2b$10$placeholder_hash_1'),
-('Marco', 'Solís',   'Vendedor',  'msolis@tienda.gt',   '$2b$10$placeholder_hash_2'),
-('Rosa',  'Fuentes', 'Vendedor',  'rfuentes@tienda.gt', '$2b$10$placeholder_hash_3'),
-('David', 'Barrios', 'Cajero',    'dbarrios@tienda.gt', '$2b$10$placeholder_hash_4'),
-('Gloria','Salazar', 'Bodeguero', 'gsalazar@tienda.gt', '$2b$10$placeholder_hash_5');
+('Elena', 'Castillo','Gerente',   'ecastillo@tienda.gt','$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
+('Marco', 'Solís',   'Vendedor',  'msolis@tienda.gt',   '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
+('Rosa',  'Fuentes', 'Vendedor',  'rfuentes@tienda.gt', '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
+('David', 'Barrios', 'Cajero',    'dbarrios@tienda.gt', '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
+('Gloria','Salazar', 'Bodeguero', 'gsalazar@tienda.gt', '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq');
 
 -- VENTAS
 INSERT INTO ventas (fecha_hora, total, estado, id_cliente, id_empleado) VALUES
