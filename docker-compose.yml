@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: tienda_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: tienda_db
+      MYSQL_USER: proy2
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: tienda_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: proy2
+      DB_PASSWORD: secret
+      DB_NAME: tienda_db
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: tienda_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+  

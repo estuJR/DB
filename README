@@ -1,0 +1,40 @@
+# Tienda — Proyecto 2
+CC3088 Bases de Datos 1 · Ciclo 1, 2026
+
+Aplicación web para gestionar inventario y ventas de una tienda.
+
+## Stack
+- **Base de datos:** MySQL 8.0
+- **Backend:** Node.js + Express
+- **Frontend:** React + Vite
+- **Infraestructura:** Docker + Docker Compose
+
+## Requisitos
+- Docker Desktop instalado y corriendo
+
+## Instrucciones para correr el proyecto
+
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/TU_USUARIO/TU_REPO.git
+cd TU_REPO
+```
+
+### 2. Crear el archivo .env
+```bash
+cp .env.example .env
+```
+Edita el `.env` con tus valores o deja los que están por defecto.
+
+### 3. Levantar todo
+```bash
+docker compose up
+```
+
+La primera vez tarda unos minutos porque descarga las imágenes y crea la base de datos automáticamente.
+
+### 4. Abrir la aplicación
+- **Frontend:** http://localhost:5173
+- **Backend:** http://localhost:3000
+
+## Credenciales de prueba
