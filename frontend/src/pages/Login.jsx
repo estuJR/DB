@@ -11,7 +11,7 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       setError('')
-      const res = await axios.post('/api/auth/login', { email, password })
+      const res = await axios.post('http://localhost:3000/api/auth/login', { email, password })
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('nombre', res.data.nombre)
       navigate('/')
@@ -25,19 +25,8 @@ export default function Login() {
       <div style={{ background: 'white', padding: '40px', borderRadius: '8px', width: '320px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Tienda — Login</h2>
         {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Contraseña"
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          style={inputStyle}
-        />
+        <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
+        <input placeholder="Contraseña" type="password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
         <button onClick={handleLogin} style={btnStyle}>Entrar</button>
       </div>
     </div>

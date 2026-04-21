@@ -1,5 +1,8 @@
 USE tienda_db;
 
+SET NAMES utf8mb4;
+USE tienda_db;
+
 -- CATEGORIAS
 INSERT INTO categorias (nombre, descripcion) VALUES
 ('Electrónica',  'Dispositivos y accesorios electrónicos'),
