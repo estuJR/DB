@@ -12,8 +12,10 @@ export default function Login() {
     try {
       setError('')
       const res = await axios.post('http://localhost:3000/api/auth/login', { email, password })
-      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('token',  res.data.token)
       localStorage.setItem('nombre', res.data.nombre)
+      localStorage.setItem('cargo',  res.data.cargo)
+      localStorage.setItem('rol_db', res.data.rol_db)
       navigate('/')
     } catch (e) {
       setError(e.response?.data?.error || 'Error al iniciar sesión')

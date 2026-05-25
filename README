@@ -1,11 +1,11 @@
-# Tienda — Proyecto 2
+# Tienda — Proyecto 3
 CC3088 Bases de Datos 1 · Ciclo 1, 2026
 
-Aplicación web para gestionar inventario y ventas de una tienda.
+Extensión del Proyecto 2: seguridad por roles en el DBMS, stored procedures y ORM (Sequelize).
 
 ## Stack
 - **Base de datos:** MySQL 8.0
-- **Backend:** Node.js + Express
+- **Backend:** Node.js + Express + Sequelize (ORM)
 - **Frontend:** React + Vite
 - **Infraestructura:** Docker + Docker Compose
 
@@ -14,27 +14,72 @@ Aplicación web para gestionar inventario y ventas de una tienda.
 
 ## Instrucciones para correr el proyecto
 
-### 1. Clonar el repositorio
+### 1. Clonar el repositorio y cambiar a la rama correcta
 ```bash
-git clone https://github.com/TU_USUARIO/TU_REPO.git
-cd TU_REPO
+git clone https://github.com/estuJR/DB.git
+cd DB
+git checkout proyecto-3
 ```
 
 ### 2. Crear el archivo .env
 ```bash
 cp .env.example .env
 ```
-Edita el `.env` con tus valores o deja los que están por defecto.
 
 ### 3. Levantar todo
 ```bash
 docker compose up
 ```
 
-La primera vez tarda unos minutos porque descarga las imágenes y crea la base de datos automáticamente.
+La primera vez tarda unos minutos. La base de datos, roles, stored procedures y datos de prueba se crean automáticamente.
 
 ### 4. Abrir la aplicación
 - **Frontend:** http://localhost:5173
-- **Backend:** http://localhost:3000
+- **Backend API:** http://localhost:3000
 
-## Credenciales de prueba
+---
+
+## Credenciales de prueba (contraseña: `secret123`)
+
+| Email | Cargo | Rol DB | Acceso |
+|---|---|---|---|
+| ecastillo@tienda.gt | Gerente | rol_gerente | Todo |
+| msolis@tienda.gt | Vendedor | rol_vendedor | Productos, Clientes, Ventas, Reportes |
+| dbarrios@tienda.gt | Cajero | rol_cajero | Clientes, Ventas |
+| gsalazar@tienda.gt | Bodeguero | rol_bodeguero | Productos |
+| rfuentes@tienda.gt | Consultor | rol_consultor | Reportes |
+
+**Usuario DB:** `proy3` · **Contraseña DB:** `secret`
+
+---
+
+## Roles definidos en el DBMS
+
+| Rol | Tablas con acceso | Operaciones |
+|---|---|---|
+| rol_gerente | Todas | SELECT, INSERT, UPDATE, DELETE |
+| rol_vendedor | Todas (lectura) + ventas, detalle_venta, productos.stock | SELECT + INSERT/UPDATE limitado |
+| rol_cajero | ventas, detalle_venta, clientes | SELECT, INSERT, UPDATE |
+| rol_bodeguero | productos, categorias, proveedores | SELECT + INSERT/UPDATE/DELETE en productos |
+| rol_consultor | Todas (excepto empleados) | SELECT |
+
+---
+
+## Stored Procedures
+
+| Nombre | Descripción |
+|---|---|
+| `sp_crear_venta` | Crea una venta con transacción y ROLLBACK |
+| `sp_actualizar_stock` | Ajusta stock con validación (IN/OUT + excepción) |
+| `sp_registrar_cliente` | Registra cliente validando email único (IN/OUT + excepción) |
+| `sp_anular_venta` | Anula venta y restituye stock (transacción + ROLLBACK) |
+| `sp_reporte_empleado` | Resumen de ventas de un empleado (IN/OUT params) |
+
+---
+
+## ORM (Sequelize)
+
+Las siguientes operaciones CRUD usan Sequelize:
+- **Productos:** findAll, create, update, destroy
+- **Clientes:** findAll, findByPk, update, destroy
+- **Categorías:** findAll, create, update, destroy

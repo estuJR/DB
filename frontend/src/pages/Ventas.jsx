@@ -9,6 +9,7 @@ export default function Ventas() {
   const [itemActual, setItemActual] = useState({ id_producto: '', cantidad: 1 })
   const [error, setError]       = useState('')
   const [exito, setExito]       = useState('')
+  const cargo = localStorage.getItem('cargo')
 
   useEffect(() => { cargar() }, [])
 
@@ -42,6 +43,17 @@ export default function Ventas() {
 
   const quitarItem = (index) => {
     setForm({ ...form, items: form.items.filter((_, i) => i !== index) })
+  }
+
+  const anularVenta = async (id) => {
+    if (!window.confirm(`¿Anular venta #${id}?`)) return
+    try {
+      await axios.patch(`/api/ventas/${id}/anular`)
+      setExito(`Venta #${id} anulada`)
+      cargar()
+    } catch (e) {
+      setError(e.response?.data?.error || 'Error al anular')
+    }
   }
 
   const calcularTotal = () => {
@@ -143,6 +155,7 @@ export default function Ventas() {
             <th style={th}>Empleado</th>
             <th style={th}>Total</th>
             <th style={th}>Estado</th>
+          {(cargo === 'Gerente' || cargo === 'Cajero') && <th style={th}>Acción</th>}
           </tr>
         </thead>
         <tbody>
@@ -154,10 +167,17 @@ export default function Ventas() {
               <td style={td}>{v.empleado_nombre} {v.empleado_apellido}</td>
               <td style={td}>Q{v.total}</td>
               <td style={td}>
-                <span style={{ background: v.estado === 'completada' ? '#27ae60' : '#f39c12', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px' }}>
+                <span style={{ background: v.estado === 'completada' ? '#27ae60' : v.estado === 'anulada' ? '#e74c3c' : '#f39c12', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px' }}>
                   {v.estado}
                 </span>
               </td>
+              {(cargo === 'Gerente' || cargo === 'Cajero') && (
+                <td style={td}>
+                  {v.estado !== 'anulada' && (
+                    <button onClick={() => anularVenta(v.id_venta)} style={btnDel}>Anular</button>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

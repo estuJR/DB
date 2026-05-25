@@ -6,13 +6,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: tienda_db
-      MYSQL_USER: proy2
+      MYSQL_USER: proy3
       MYSQL_PASSWORD: secret
     ports:
       - "3307:3306"
     volumes:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
       - ./database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+      - ./database/roles_procedures.sql:/docker-entrypoint-initdb.d/03_roles_procedures.sql
       - db_data:/var/lib/mysql
 
   backend:
@@ -23,7 +24,7 @@ services:
       - "3000:3000"
     environment:
       DB_HOST: db
-      DB_USER: proy2
+      DB_USER: proy3
       DB_PASSWORD: secret
       DB_NAME: tienda_db
       JWT_SECRET: ${JWT_SECRET}

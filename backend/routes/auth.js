@@ -22,12 +22,12 @@ router.post('/login', async (req, res) => {
     return res.status(401).json({ error: 'Credenciales inválidas' });
 
   const token = jwt.sign(
-    { id: empleado.id_empleado, cargo: empleado.cargo },
+    { id: empleado.id_empleado, cargo: empleado.cargo, rol_db: empleado.rol_db },
     process.env.JWT_SECRET,
     { expiresIn: '8h' }
   );
 
-  res.json({ token, nombre: empleado.nombre, cargo: empleado.cargo });
+  res.json({ token, nombre: empleado.nombre, cargo: empleado.cargo, rol_db: empleado.rol_db });
 });
 
 module.exports = router;

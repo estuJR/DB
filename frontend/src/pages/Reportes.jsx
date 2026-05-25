@@ -7,6 +7,9 @@ export default function Reportes() {
   const [resumenMes, setResumenMes]     = useState([])
   const [clientesActivos, setClientesActivos] = useState([])
   const [tab, setTab] = useState('empleados')
+  const [empleadoId, setEmpleadoId]     = useState('')
+  const [reporteEmp, setReporteEmp]     = useState(null)
+  const [reporteError, setReporteError] = useState('')
 
   useEffect(() => { cargar() }, [])
 
@@ -21,6 +24,17 @@ export default function Reportes() {
     setMasVendidos(p.data)
     setResumenMes(m.data)
     setClientesActivos(c.data)
+  }
+
+  const buscarReporteEmpleado = async () => {
+    setReporteError('')
+    setReporteEmp(null)
+    try {
+      const res = await axios.get(`/api/reportes/reporte-empleado/${empleadoId}`)
+      setReporteEmp(res.data)
+    } catch (e) {
+      setReporteError(e.response?.data?.error || 'Error al consultar')
+    }
   }
 
   const exportarCSV = (datos, nombre) => {
@@ -41,11 +55,12 @@ export default function Reportes() {
     <div>
       <h2>Reportes</h2>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <button onClick={() => setTab('empleados')} style={tab === 'empleados' ? btnActive : btnTab}>Ventas por empleado</button>
         <button onClick={() => setTab('productos')} style={tab === 'productos' ? btnActive : btnTab}>Productos más vendidos</button>
         <button onClick={() => setTab('mensual')}   style={tab === 'mensual'   ? btnActive : btnTab}>Resumen mensual</button>
         <button onClick={() => setTab('clientes')}  style={tab === 'clientes'  ? btnActive : btnTab}>Clientes activos</button>
+        <button onClick={() => setTab('sp')}        style={tab === 'sp'        ? btnActive : btnTab}>Reporte por empleado (SP)</button>
       </div>
 
       {tab === 'empleados' && (
@@ -155,6 +170,36 @@ export default function Reportes() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {tab === 'sp' && (
+        <div>
+          <h3>Reporte por empleado (Stored Procedure)</h3>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center' }}>
+            <input
+              type="number" min="1" placeholder="ID del empleado"
+              value={empleadoId} onChange={e => setEmpleadoId(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '180px' }}
+            />
+            <button onClick={buscarReporteEmpleado} style={btnActive}>Consultar SP</button>
+          </div>
+          {reporteError && <p style={{ color: 'red' }}>{reporteError}</p>}
+          {reporteEmp && (
+            <table style={tableStyle}>
+              <thead>
+                <tr style={{ background: '#2c3e50', color: 'white' }}>
+                  <th style={th}>Total ventas completadas</th>
+                  <th style={th}>Monto total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={td}>{reporteEmp.total_ventas}</td>
+                  <td style={td}>Q{reporteEmp.monto_total}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </div>
