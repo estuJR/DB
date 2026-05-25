@@ -14,7 +14,13 @@ router.get('/', async (req, res) => {
         { model: Proveedor, as: 'proveedor', attributes: ['nombre'] }
       ]
     });
-    res.json(rows);
+    // Aplanar para mantener compatibilidad con el frontend
+    const flat = rows.map(p => ({
+      ...p.toJSON(),
+      categoria: p.categoria?.nombre,
+      proveedor: p.proveedor?.nombre
+    }));
+    res.json(flat);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -30,7 +36,7 @@ router.get('/:id', async (req, res) => {
       ]
     });
     if (!p) return res.status(404).json({ error: 'Producto no encontrado' });
-    res.json(p);
+    res.json({ ...p.toJSON(), categoria: p.categoria?.nombre, proveedor: p.proveedor?.nombre });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

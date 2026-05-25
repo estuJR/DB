@@ -10,20 +10,23 @@ export default function Reportes() {
   const [empleadoId, setEmpleadoId]     = useState('')
   const [reporteEmp, setReporteEmp]     = useState(null)
   const [reporteError, setReporteError] = useState('')
+  const [vistaVentas, setVistaVentas]   = useState([])
 
   useEffect(() => { cargar() }, [])
 
   const cargar = async () => {
-    const [e, p, m, c] = await Promise.all([
+    const [e, p, m, c, v] = await Promise.all([
       axios.get('/api/reportes/ventas-por-empleado'),
       axios.get('/api/reportes/productos-mas-vendidos'),
       axios.get('/api/reportes/resumen-mensual'),
-      axios.get('/api/reportes/clientes-activos')
+      axios.get('/api/reportes/clientes-activos'),
+      axios.get('/api/reportes/vista-ventas')
     ])
     setPorEmpleado(e.data)
     setMasVendidos(p.data)
     setResumenMes(m.data)
     setClientesActivos(c.data)
+    setVistaVentas(v.data)
   }
 
   const buscarReporteEmpleado = async () => {
@@ -60,7 +63,8 @@ export default function Reportes() {
         <button onClick={() => setTab('productos')} style={tab === 'productos' ? btnActive : btnTab}>Productos más vendidos</button>
         <button onClick={() => setTab('mensual')}   style={tab === 'mensual'   ? btnActive : btnTab}>Resumen mensual</button>
         <button onClick={() => setTab('clientes')}  style={tab === 'clientes'  ? btnActive : btnTab}>Clientes activos</button>
-        <button onClick={() => setTab('sp')}        style={tab === 'sp'        ? btnActive : btnTab}>Reporte por empleado (SP)</button>
+        <button onClick={() => setTab('sp')}           style={tab === 'sp'           ? btnActive : btnTab}>Reporte por empleado (SP)</button>
+        <button onClick={() => setTab('vista-ventas')} style={tab === 'vista-ventas' ? btnActive : btnTab}>Detalle ventas (VIEW)</button>
       </div>
 
       {tab === 'empleados' && (
@@ -200,6 +204,42 @@ export default function Reportes() {
               </tbody>
             </table>
           )}
+        </div>
+      )}
+      {tab === 'vista-ventas' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h3>Detalle de ventas (VIEW: vista_ventas_detalle)</h3>
+            <button onClick={() => exportarCSV(vistaVentas, 'detalle_ventas')} style={btnExport}>⬇ Exportar CSV</button>
+          </div>
+          <table style={tableStyle}>
+            <thead>
+              <tr style={{ background: '#2c3e50', color: 'white' }}>
+                <th style={th}>#Venta</th>
+                <th style={th}>Fecha</th>
+                <th style={th}>Cliente</th>
+                <th style={th}>Empleado</th>
+                <th style={th}>Producto</th>
+                <th style={th}>Cantidad</th>
+                <th style={th}>Precio</th>
+                <th style={th}>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vistaVentas.map((r, i) => (
+                <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
+                  <td style={td}>{r.id_venta}</td>
+                  <td style={td}>{new Date(r.fecha_hora).toLocaleDateString()}</td>
+                  <td style={td}>{r.cliente}</td>
+                  <td style={td}>{r.empleado}</td>
+                  <td style={td}>{r.producto}</td>
+                  <td style={td}>{r.cantidad}</td>
+                  <td style={td}>Q{r.precio_unitario_venta}</td>
+                  <td style={td}>{r.estado}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
