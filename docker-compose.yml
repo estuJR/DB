@@ -21,7 +21,7 @@ services:
     container_name: tienda_backend
     restart: always
     ports:
-      - "3000:3000"
+      - "4875:3000"
     environment:
       DB_HOST: db
       DB_USER: proy3

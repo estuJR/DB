@@ -11,7 +11,7 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       setError('')
-      const res = await axios.post('http://localhost:3000/api/auth/login', { email, password })
+      const res = await axios.post('http://localhost:4875/api/auth/login', { email, password })
       localStorage.setItem('token',  res.data.token)
       localStorage.setItem('nombre', res.data.nombre)
       localStorage.setItem('cargo',  res.data.cargo)
