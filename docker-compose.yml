@@ -36,7 +36,7 @@ services:
     container_name: tienda_frontend
     restart: always
     ports:
-      - "5173:5173"
+      - "4876:4876"
     depends_on:
       - backend
 
