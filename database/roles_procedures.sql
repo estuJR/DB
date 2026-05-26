@@ -29,12 +29,14 @@ GRANT INSERT, UPDATE ON tienda_db.clientes TO 'rol_cajero';
 -- Bodeguero: gestionar productos
 GRANT SELECT ON tienda_db.* TO 'rol_bodeguero';
 GRANT INSERT, UPDATE, DELETE ON tienda_db.productos TO 'rol_bodeguero';
-GRANT SELECT ON tienda_db.categorias TO 'rol_bodeguero';
-GRANT SELECT ON tienda_db.proveedores TO 'rol_bodeguero';
 
 -- Consultor: solo lectura para reportes
-GRANT SELECT ON tienda_db.* TO 'rol_consultor';
-REVOKE SELECT ON tienda_db.empleados FROM 'rol_consultor';
+GRANT SELECT ON tienda_db.ventas TO 'rol_consultor';
+GRANT SELECT ON tienda_db.detalle_venta TO 'rol_consultor';
+GRANT SELECT ON tienda_db.productos TO 'rol_consultor';
+GRANT SELECT ON tienda_db.categorias TO 'rol_consultor';
+GRANT SELECT ON tienda_db.proveedores TO 'rol_consultor';
+GRANT SELECT ON tienda_db.clientes TO 'rol_consultor';
 
 -- Usuarios de prueba con sus roles asignados
 CREATE USER IF NOT EXISTS 'u_gerente'@'%'   IDENTIFIED BY 'secret123';
@@ -56,7 +58,7 @@ SET DEFAULT ROLE ALL TO
   'u_bodeguero'@'%',
   'u_consultor'@'%';
 
--- También otorgar privilegios al usuario principal de la app
+-- Usuario principal de la app
 GRANT ALL PRIVILEGES ON tienda_db.* TO 'proy3'@'%';
 FLUSH PRIVILEGES;
 
@@ -76,10 +78,10 @@ CREATE PROCEDURE sp_crear_venta(
   OUT out_venta_id   INT,
   OUT out_error      VARCHAR(255)
 )
-BEGIN
-  DECLARE v_stock        INT DEFAULT 0;
-  DECLARE v_precio       DECIMAL(10,2) DEFAULT 0;
-  DECLARE v_total        DECIMAL(12,2) DEFAULT 0;
+sp_crear_venta: BEGIN
+  DECLARE v_stock  INT DEFAULT 0;
+  DECLARE v_precio DECIMAL(10,2) DEFAULT 0;
+  DECLARE v_total  DECIMAL(12,2) DEFAULT 0;
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
     ROLLBACK;
@@ -87,7 +89,8 @@ BEGIN
     SET out_error    = 'Error interno al crear la venta';
   END;
 
-  SET out_error = '';
+  SET out_venta_id = 0;
+  SET out_error    = '';
 
   START TRANSACTION;
 
@@ -129,7 +132,7 @@ CREATE PROCEDURE sp_actualizar_stock(
   OUT out_nuevo_stock INT,
   OUT out_error       VARCHAR(255)
 )
-BEGIN
+sp_actualizar_stock: BEGIN
   DECLARE v_stock_actual INT DEFAULT 0;
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -137,19 +140,20 @@ BEGIN
     SET out_error = 'Error al actualizar el stock';
   END;
 
-  SET out_error = '';
+  SET out_nuevo_stock = -1;
+  SET out_error       = '';
 
   SELECT stock INTO v_stock_actual
     FROM productos WHERE id_producto = in_producto_id;
 
   IF v_stock_actual IS NULL THEN
-    SET out_error    = 'Producto no encontrado';
+    SET out_error       = 'Producto no encontrado';
     SET out_nuevo_stock = -1;
     LEAVE sp_actualizar_stock;
   END IF;
 
   IF (v_stock_actual + in_delta) < 0 THEN
-    SET out_error    = 'El ajuste dejaría stock negativo';
+    SET out_error       = 'El ajuste dejaría stock negativo';
     SET out_nuevo_stock = v_stock_actual;
     LEAVE sp_actualizar_stock;
   END IF;
@@ -170,7 +174,7 @@ CREATE PROCEDURE sp_registrar_cliente(
   OUT out_id       INT,
   OUT out_error    VARCHAR(255)
 )
-BEGIN
+sp_registrar_cliente: BEGIN
   DECLARE v_existe INT DEFAULT 0;
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -178,6 +182,7 @@ BEGIN
     SET out_error = 'Error al registrar el cliente';
   END;
 
+  SET out_id    = 0;
   SET out_error = '';
 
   SELECT COUNT(*) INTO v_existe FROM clientes WHERE email = in_email;
@@ -199,17 +204,20 @@ CREATE PROCEDURE sp_anular_venta(
   IN  in_venta_id    INT,
   OUT out_resultado  VARCHAR(100)
 )
-BEGIN
-  DECLARE v_estado  VARCHAR(20);
+sp_anular_venta: BEGIN
+  DECLARE v_estado VARCHAR(20);
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
     ROLLBACK;
     SET out_resultado = 'ERROR: fallo al anular la venta';
   END;
 
+  SET out_resultado = '';
+
   START TRANSACTION;
 
-  SELECT estado INTO v_estado FROM ventas WHERE id_venta = in_venta_id FOR UPDATE;
+  SELECT estado INTO v_estado FROM ventas
+    WHERE id_venta = in_venta_id FOR UPDATE;
 
   IF v_estado IS NULL THEN
     ROLLBACK;
@@ -223,7 +231,6 @@ BEGIN
     LEAVE sp_anular_venta;
   END IF;
 
-  -- Restituir stock de cada producto en el detalle
   UPDATE productos p
     JOIN detalle_venta d ON p.id_producto = d.id_producto
     SET p.stock = p.stock + d.cantidad
@@ -238,12 +245,12 @@ END$$
 -- SP 5: Resumen de ventas por empleado (IN/OUT params de salida)
 DROP PROCEDURE IF EXISTS sp_reporte_empleado$$
 CREATE PROCEDURE sp_reporte_empleado(
-  IN  in_empleado_id  INT,
+  IN  in_empleado_id   INT,
   OUT out_total_ventas INT,
   OUT out_monto_total  DECIMAL(12,2),
   OUT out_error        VARCHAR(255)
 )
-BEGIN
+sp_reporte_empleado: BEGIN
   DECLARE v_existe INT DEFAULT 0;
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -252,9 +259,12 @@ BEGIN
     SET out_error        = 'Error al generar reporte';
   END;
 
-  SET out_error = '';
+  SET out_total_ventas = 0;
+  SET out_monto_total  = 0;
+  SET out_error        = '';
 
-  SELECT COUNT(*) INTO v_existe FROM empleados WHERE id_empleado = in_empleado_id;
+  SELECT COUNT(*) INTO v_existe
+    FROM empleados WHERE id_empleado = in_empleado_id;
 
   IF v_existe = 0 THEN
     SET out_error = 'Empleado no encontrado';
