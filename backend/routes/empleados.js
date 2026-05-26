@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
   const { nombre, apellido, cargo, email, password } = req.body;
   if (!nombre || !email || !password)
     return res.status(400).json({ error: 'Faltan campos requeridos' });
-  const bcrypt = require('bcrypt');
+  const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash(password, 10);
   const [result] = await db.query(
     'INSERT INTO empleados (nombre, apellido, cargo, email, password_hash) VALUES (?, ?, ?, ?, ?)',
