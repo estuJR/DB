@@ -21,22 +21,26 @@ GRANT INSERT ON tienda_db.detalle_venta TO 'rol_vendedor';
 GRANT UPDATE (stock) ON tienda_db.productos TO 'rol_vendedor';
 
 -- Cajero: gestionar ventas y clientes
+-- Lectura general; se revoca acceso a datos personales de empleados
 GRANT SELECT ON tienda_db.* TO 'rol_cajero';
+REVOKE SELECT ON tienda_db.empleados FROM 'rol_cajero';
 GRANT INSERT, UPDATE ON tienda_db.ventas TO 'rol_cajero';
 GRANT INSERT ON tienda_db.detalle_venta TO 'rol_cajero';
 GRANT INSERT, UPDATE ON tienda_db.clientes TO 'rol_cajero';
 
--- Bodeguero: gestionar productos
+-- Bodeguero: gestionar productos e inventario
+-- Lectura general; se revoca acceso a ventas, clientes y empleados
 GRANT SELECT ON tienda_db.* TO 'rol_bodeguero';
+REVOKE SELECT ON tienda_db.ventas FROM 'rol_bodeguero';
+REVOKE SELECT ON tienda_db.detalle_venta FROM 'rol_bodeguero';
+REVOKE SELECT ON tienda_db.clientes FROM 'rol_bodeguero';
+REVOKE SELECT ON tienda_db.empleados FROM 'rol_bodeguero';
 GRANT INSERT, UPDATE, DELETE ON tienda_db.productos TO 'rol_bodeguero';
 
 -- Consultor: solo lectura para reportes
-GRANT SELECT ON tienda_db.ventas TO 'rol_consultor';
-GRANT SELECT ON tienda_db.detalle_venta TO 'rol_consultor';
-GRANT SELECT ON tienda_db.productos TO 'rol_consultor';
-GRANT SELECT ON tienda_db.categorias TO 'rol_consultor';
-GRANT SELECT ON tienda_db.proveedores TO 'rol_consultor';
-GRANT SELECT ON tienda_db.clientes TO 'rol_consultor';
+-- Lectura general; se revoca acceso a datos sensibles de empleados
+GRANT SELECT ON tienda_db.* TO 'rol_consultor';
+REVOKE SELECT ON tienda_db.empleados FROM 'rol_consultor';
 
 -- Usuarios de prueba con sus roles asignados
 CREATE USER IF NOT EXISTS 'u_gerente'@'%'   IDENTIFIED BY 'secret123';

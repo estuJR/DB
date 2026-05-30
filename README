@@ -34,8 +34,8 @@ docker compose up
 La primera vez tarda unos minutos. La base de datos, roles, stored procedures y datos de prueba se crean automáticamente.
 
 ### 4. Abrir la aplicación
-- **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:3000
+- **Frontend:** http://localhost:4876
+- **Backend API:** http://localhost:4875
 
 ---
 
@@ -58,10 +58,10 @@ La primera vez tarda unos minutos. La base de datos, roles, stored procedures y 
 | Rol | Tablas con acceso | Operaciones |
 |---|---|---|
 | rol_gerente | Todas | SELECT, INSERT, UPDATE, DELETE |
-| rol_vendedor | Todas (lectura) + ventas, detalle_venta, productos.stock | SELECT + INSERT/UPDATE limitado |
-| rol_cajero | ventas, detalle_venta, clientes | SELECT, INSERT, UPDATE |
-| rol_bodeguero | productos, categorias, proveedores | SELECT + INSERT/UPDATE/DELETE en productos |
-| rol_consultor | Todas (excepto empleados) | SELECT |
+| rol_vendedor | Todas (lectura) + ventas, detalle_venta, productos.stock (escritura) | SELECT + INSERT/UPDATE limitado |
+| rol_cajero | Todas excepto empleados (lectura, via REVOKE) + ventas, detalle_venta, clientes (escritura) | SELECT + INSERT/UPDATE limitado |
+| rol_bodeguero | productos, categorias, proveedores (lectura, via REVOKE sobre ventas/clientes/empleados) + productos (escritura) | SELECT + INSERT/UPDATE/DELETE en productos |
+| rol_consultor | Todas excepto empleados (via REVOKE) | SELECT |
 
 ---
 
