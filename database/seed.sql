@@ -90,13 +90,13 @@ INSERT INTO clientes (nombre, apellido, email, telefono) VALUES
 ('Emilio',    'Ríos',     'erios@yahoo.com',       '3378-9012'),
 ('Mariana',   'Molina',   'mmolina@gmail.com',     '5589-0123');
 
--- EMPLEADOS
-INSERT INTO empleados (nombre, apellido, cargo, email, password_hash) VALUES
-('Elena', 'Castillo','Gerente',   'ecastillo@tienda.gt','$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
-('Marco', 'Solís',   'Vendedor',  'msolis@tienda.gt',   '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
-('Rosa',  'Fuentes', 'Vendedor',  'rfuentes@tienda.gt', '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
-('David', 'Barrios', 'Cajero',    'dbarrios@tienda.gt', '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq'),
-('Gloria','Salazar', 'Bodeguero', 'gsalazar@tienda.gt', '$2b$10$QIbY4BWIZl9Gtd0AytSRCuoMs.J5ULYaIYEe8/bJPIQsO/Tg5mUrq');
+-- EMPLEADOS (contraseña de todos: secret123)
+INSERT INTO empleados (nombre, apellido, cargo, email, password_hash, rol_db) VALUES
+('Elena', 'Castillo','Gerente',   'ecastillo@tienda.gt','$2b$10$ALmG4xDEGLMstv.zIjoAburSemd6Ty4HoqZ9vPnTPLaTll/.RZ.yS','rol_gerente'),
+('Marco', 'Solís',   'Vendedor',  'msolis@tienda.gt',   '$2b$10$ALmG4xDEGLMstv.zIjoAburSemd6Ty4HoqZ9vPnTPLaTll/.RZ.yS','rol_vendedor'),
+('Rosa',  'Fuentes', 'Consultor', 'rfuentes@tienda.gt', '$2b$10$ALmG4xDEGLMstv.zIjoAburSemd6Ty4HoqZ9vPnTPLaTll/.RZ.yS','rol_consultor'),
+('David', 'Barrios', 'Cajero',    'dbarrios@tienda.gt', '$2b$10$ALmG4xDEGLMstv.zIjoAburSemd6Ty4HoqZ9vPnTPLaTll/.RZ.yS','rol_cajero'),
+('Gloria','Salazar', 'Bodeguero', 'gsalazar@tienda.gt', '$2b$10$ALmG4xDEGLMstv.zIjoAburSemd6Ty4HoqZ9vPnTPLaTll/.RZ.yS','rol_bodeguero');
 
 -- VENTAS
 INSERT INTO ventas (fecha_hora, total, estado, id_cliente, id_empleado) VALUES

@@ -51,6 +51,7 @@ CREATE TABLE empleados (
     cargo         VARCHAR(60)  NOT NULL,
     email         VARCHAR(120) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    rol_db        VARCHAR(50)  NOT NULL DEFAULT 'rol_consultor',
     PRIMARY KEY (id_empleado)
 );
 

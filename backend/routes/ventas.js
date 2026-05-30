@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
 
   const conn = await db.getConnection();
   try {
-    await conn.beginTransaction();
+    await conn.query('START TRANSACTION');
 
     // Calcular total y verificar stock
     let total = 0;
@@ -83,14 +83,43 @@ router.post('/', async (req, res) => {
       );
     }
 
-    await conn.commit();
+    await conn.query('COMMIT');
     res.json({ mensaje: 'Venta creada', id_venta, total });
 
   } catch (error) {
-    await conn.rollback();
+    await conn.query('ROLLBACK');
     res.status(500).json({ error: error.message });
   } finally {
     conn.release();
+  }
+});
+
+// PATCH anular venta — SP sp_anular_venta (transacción + ROLLBACK dentro del SP)
+router.patch('/:id/anular', async (req, res) => {
+  try {
+    await db.query('CALL sp_anular_venta(?, @resultado)', [req.params.id]);
+    const [[result]] = await db.query('SELECT @resultado AS resultado');
+    if (result.resultado.startsWith('ERROR'))
+      return res.status(400).json({ error: result.resultado.replace('ERROR: ', '') });
+    res.json({ mensaje: result.resultado.replace('OK: ', '') });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST venta simple con SP sp_crear_venta (un solo producto)
+router.post('/sp', async (req, res) => {
+  const { id_cliente, id_empleado, id_producto, cantidad } = req.body;
+  if (!id_cliente || !id_empleado || !id_producto || !cantidad)
+    return res.status(400).json({ error: 'Faltan datos' });
+  try {
+    await db.query('CALL sp_crear_venta(?, ?, ?, ?, @venta_id, @error)',
+      [id_cliente, id_empleado, id_producto, cantidad]);
+    const [[result]] = await db.query('SELECT @venta_id AS venta_id, @error AS error');
+    if (result.error) return res.status(400).json({ error: result.error });
+    res.json({ mensaje: 'Venta creada via SP', id_venta: result.venta_id });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

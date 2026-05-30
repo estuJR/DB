@@ -66,4 +66,24 @@ router.get('/clientes-activos', async (req, res) => {
   res.json(rows);
 });
 
+// Vista de ventas con detalle completo (usa la VIEW vista_ventas_detalle)
+router.get('/vista-ventas', async (req, res) => {
+  const [rows] = await db.query('SELECT * FROM vista_ventas_detalle ORDER BY id_venta DESC LIMIT 100');
+  res.json(rows);
+});
+
+// Reporte por empleado — SP sp_reporte_empleado (IN/OUT params)
+router.get('/reporte-empleado/:id', async (req, res) => {
+  try {
+    await db.query('CALL sp_reporte_empleado(?, @ventas, @monto, @error)', [req.params.id]);
+    const [[result]] = await db.query(
+      'SELECT @ventas AS total_ventas, @monto AS monto_total, @error AS error'
+    );
+    if (result.error) return res.status(400).json({ error: result.error });
+    res.json({ total_ventas: result.total_ventas, monto_total: result.monto_total });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
