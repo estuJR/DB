@@ -20,16 +20,14 @@ export default function Clientes() {
       setError('')
       if (!form.nombre || !form.apellido || !form.email)
         return setError('Nombre, apellido y email son requeridos')
-
       if (editId) {
         await axios.put(`/api/clientes/${editId}`, form)
         setExito('Cliente actualizado')
       } else {
         await axios.post('/api/clientes', form)
-        setExito('Cliente creado')
+        setExito('Cliente registrado')
       }
-      setForm({ nombre: '', apellido: '', email: '', telefono: '' })
-      setEditId(null)
+      resetForm()
       cargar()
     } catch (e) {
       setError(e.response?.data?.error || 'Error al guardar')
@@ -39,8 +37,7 @@ export default function Clientes() {
   const editar = (c) => {
     setEditId(c.id_cliente)
     setForm({ nombre: c.nombre, apellido: c.apellido, email: c.email, telefono: c.telefono })
-    setError('')
-    setExito('')
+    setError(''); setExito('')
   }
 
   const eliminar = async (id) => {
@@ -49,67 +46,69 @@ export default function Clientes() {
       await axios.delete(`/api/clientes/${id}`)
       setExito('Cliente eliminado')
       cargar()
-    } catch (e) {
+    } catch {
       setError('No se puede eliminar, tiene ventas asociadas')
     }
   }
 
+  const resetForm = () => {
+    setEditId(null)
+    setForm({ nombre: '', apellido: '', email: '', telefono: '' })
+    setError(''); setExito('')
+  }
+
+  const f = (k, v) => setForm({ ...form, [k]: v })
+
   return (
     <div>
-      <h2>Clientes</h2>
-
-      {error && <p style={{ color: 'red',   background: '#ffe0e0', padding: '8px', borderRadius: '4px' }}>{error}</p>}
-      {exito && <p style={{ color: 'green', background: '#e0ffe0', padding: '8px', borderRadius: '4px' }}>{exito}</p>}
-
-      <div style={formStyle}>
-        <h3>{editId ? 'Editar cliente' : 'Nuevo cliente'}</h3>
-        <input placeholder="Nombre"    value={form.nombre}    onChange={e => setForm({...form, nombre:    e.target.value})} style={inputStyle} />
-        <input placeholder="Apellido"  value={form.apellido}  onChange={e => setForm({...form, apellido:  e.target.value})} style={inputStyle} />
-        <input placeholder="Email"     value={form.email}     onChange={e => setForm({...form, email:     e.target.value})} style={inputStyle} />
-        <input placeholder="Teléfono"  value={form.telefono}  onChange={e => setForm({...form, telefono:  e.target.value})} style={inputStyle} />
-        <button onClick={guardar} style={btnPrimary}>{editId ? 'Actualizar' : 'Crear'}</button>
-        {editId && (
-          <button onClick={() => { setEditId(null); setForm({ nombre:'', apellido:'', email:'', telefono:'' }) }} style={btnSecondary}>
-            Cancelar
-          </button>
-        )}
+      <div className="page-header">
+        <h2 className="page-title">Clientes</h2>
       </div>
 
-      <table style={tableStyle}>
-        <thead>
-          <tr style={{ background: '#2c3e50', color: 'white' }}>
-            <th style={th}>Nombre</th>
-            <th style={th}>Apellido</th>
-            <th style={th}>Email</th>
-            <th style={th}>Teléfono</th>
-            <th style={th}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientes.map(c => (
-            <tr key={c.id_cliente} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={td}>{c.nombre}</td>
-              <td style={td}>{c.apellido}</td>
-              <td style={td}>{c.email}</td>
-              <td style={td}>{c.telefono}</td>
-              <td style={td}>
-                <button onClick={() => editar(c)}             style={btnEdit}>Editar</button>
-                <button onClick={() => eliminar(c.id_cliente)} style={btnDel}>Eliminar</button>
-              </td>
+      {error && <div className="alert alert-error">{error}</div>}
+      {exito && <div className="alert alert-success">{exito}</div>}
+
+      <div className="card">
+        <div className="card-title">{editId ? 'Editar cliente' : 'Nuevo cliente'}</div>
+        <div className="form-grid">
+          <input className="input" placeholder="Nombre"    value={form.nombre}   onChange={e => f('nombre',   e.target.value)} />
+          <input className="input" placeholder="Apellido"  value={form.apellido} onChange={e => f('apellido', e.target.value)} />
+          <input className="input" placeholder="Email"     value={form.email}    onChange={e => f('email',    e.target.value)} />
+          <input className="input" placeholder="Teléfono"  value={form.telefono} onChange={e => f('telefono', e.target.value)} />
+        </div>
+        <div className="form-actions">
+          <button className="btn btn-primary" onClick={guardar}>{editId ? 'Actualizar' : 'Registrar cliente'}</button>
+          {editId && <button className="btn btn-secondary" onClick={resetForm}>Cancelar</button>}
+        </div>
+      </div>
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {clientes.map(c => (
+              <tr key={c.id_cliente}>
+                <td>{c.nombre}</td>
+                <td>{c.apellido}</td>
+                <td>{c.email}</td>
+                <td>{c.telefono}</td>
+                <td className="flex gap-8">
+                  <button className="btn btn-warning btn-sm" onClick={() => editar(c)}>Editar</button>
+                  <button className="btn btn-danger btn-sm"  onClick={() => eliminar(c.id_cliente)}>Eliminar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
-
-const formStyle    = { background: '#f9f9f9', padding: '20px', borderRadius: '8px', marginBottom: '20px', maxWidth: '600px' }
-const inputStyle   = { width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }
-const btnPrimary   = { background: '#2c3e50', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', marginRight: '8px' }
-const btnSecondary = { background: '#95a5a6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }
-const btnEdit      = { background: '#f39c12', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', marginRight: '6px' }
-const btnDel       = { background: '#e74c3c', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer' }
-const tableStyle   = { width: '100%', borderCollapse: 'collapse' }
-const th           = { padding: '10px', textAlign: 'left' }
-const td           = { padding: '10px' }
